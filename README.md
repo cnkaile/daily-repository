@@ -4,5 +4,5 @@
     
 ## spring-boot-base
 
-SpringBoot基础配置包
+SpringBoot基础配置包.
 
