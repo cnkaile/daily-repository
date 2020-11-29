@@ -1,4 +1,4 @@
-package com.nouser.springbootbase;
+package com.nouser;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
