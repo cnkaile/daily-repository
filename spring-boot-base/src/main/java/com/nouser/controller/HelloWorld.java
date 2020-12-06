@@ -1,4 +1,4 @@
-package com.nouser.com.nouser.controller;
+package com.nouser.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

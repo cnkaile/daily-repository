@@ -1,0 +1,18 @@
+# 应用服务 WEB 访问端口
+logging:
+  config: classpath:config/log4j2-spring.xml
+  level:
+    com:
+      nouser:
+        mapper: debug
+spring:
+  datasource:
+    username: root
+    password: 123456
+    url: jdbc:mysql://81.70.53.12:3306/my-test?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=UTC
+    driver-class-name: com.mysql.jdbc.Driver
+mybatis:
+  mapper-locations: classpath:mapper/*Mapping.xml
+  type-aliases-package: com.nouser.entity
+server:
+  port: 8080
