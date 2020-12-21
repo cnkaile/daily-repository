@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * 面试总结：
- *      1：反射
+ *      1：反射;应用:修改HttpServletRequest的Header头。
  *
  */
 @SpringBootApplication
