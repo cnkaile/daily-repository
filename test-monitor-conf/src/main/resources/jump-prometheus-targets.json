@@ -1,0 +1,11 @@
+[
+  {
+    "targets": [
+      "172.21.0.15:9040"
+    ],
+    "labels": {
+      "instance": "jump-switch",
+      "service": "jump-switch-service"
+    }
+  }
+]
