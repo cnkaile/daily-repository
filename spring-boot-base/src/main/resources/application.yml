@@ -9,7 +9,7 @@ spring:
   datasource:
     username: root
     password: 123456
-    url: jdbc:mysql://81.70.53.12:3306/my-test?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=UTC
+    url: jdbc:mysql://81.70.53.12:3306/my-config_test?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=UTC
     driver-class-name: com.mysql.jdbc.Driver
 mybatis:
   mapper-locations: classpath:mapper/*Mapping.xml

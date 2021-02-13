@@ -1,0 +1,11 @@
+[
+  {
+    "targets": [
+      "81.70.53.12:9041"
+    ],
+    "labels": {
+      "instance": "springboot",
+      "service": "springboot-service"
+    }
+  }
+]
