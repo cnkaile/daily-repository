@@ -1,4 +1,4 @@
-package cn.nouser.controller;
+package com.nouser.controller;
 
 
 import org.apache.tomcat.util.http.MimeHeaders;
