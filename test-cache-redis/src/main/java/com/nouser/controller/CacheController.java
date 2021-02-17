@@ -1,5 +1,6 @@
 package com.nouser.controller;
 
+import com.nouser.config.annotations.UseCache;
 import com.nouser.service.CacheService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,5 +25,13 @@ public class CacheController {
         return "OK" + " - " + name + " - " + result;
     }
 
+    @UseCache
+    @RequestMapping("interceptorCache")
+    private String interceptorCache(String name){
+        logger.info("Into BaseCache Controller, {}", name);
+        String result = cacheService.baseCache(name);
+
+        return "OK" + " - " + name + " - " + result;
+    }
 
 }

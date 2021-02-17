@@ -43,6 +43,12 @@
 
 #### 3.1 先定义一个注解吧
 
+```java
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface UseCache {
+}
+```
 
 #### 3.1 使用SpringMvc的拦截器，对接口结果进行缓存。
 
