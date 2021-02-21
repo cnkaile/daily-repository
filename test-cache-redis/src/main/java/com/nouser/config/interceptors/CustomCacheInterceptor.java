@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,9 +35,6 @@ public class CustomCacheInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         logger.info("Into Method Bef, This handler :{}", handler.getClass().getName());
-        String queryString = request.getQueryString();
-        logger.debug("queryString:{}", queryString);
-
 
         if (handler instanceof HandlerMethod) {
             HandlerMethod method = (HandlerMethod) handler;
@@ -62,5 +60,4 @@ public class CustomCacheInterceptor extends HandlerInterceptorAdapter {
 
         return true;
     }
-
 }
