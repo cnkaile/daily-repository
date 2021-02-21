@@ -22,15 +22,20 @@ import java.util.concurrent.TimeUnit;
 @RestControllerAdvice
 public class ApiResponseBody implements ResponseBodyAdvice<Object> {
     private static final Logger logger = LoggerFactory.getLogger(ApiResponseBody.class);
-    @Autowired
-    private StringRedisTemplate redisTemplate;
+    private final StringRedisTemplate redisTemplate;
 
+    @Autowired
+    public ApiResponseBody(StringRedisTemplate redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
 
 
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
+        logger.info("Into supports");
         Method method = returnType.getMethod();
         if(method != null){
+            logger.info("Find This method use cache.");
             return method.isAnnotationPresent(UseCache.class);
         }
         return false;
@@ -45,6 +50,7 @@ public class ApiResponseBody implements ResponseBodyAdvice<Object> {
             if(StringUtils.isNoneBlank(cacheKey)){
                 redisTemplate.opsForValue().set(cacheKey, value, 60, TimeUnit.SECONDS);
             }
+            logger.info("cache controller return content.");
         }catch (Exception e){
             logger.error("Cache Exception:{}", e.getMessage(), e);
         }

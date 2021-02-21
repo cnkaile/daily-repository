@@ -29,7 +29,7 @@ public class CacheController {
     @RequestMapping("interceptorCache")
     private String interceptorCache(String name){
         logger.info("Into BaseCache Controller, {}", name);
-        String result = cacheService.baseCache(name);
+        String result = cacheService.incr(name);
 
         return "OK" + " - " + name + " - " + result;
     }

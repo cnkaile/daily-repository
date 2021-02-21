@@ -15,8 +15,12 @@ public class CacheService {
     private static Integer BASE_CACHE_SIGN = 0;
     private static final String CACHE_KEY = "BASE_CACHE:";
 
+    private final StringRedisTemplate stringRedisTemplate;
+
     @Autowired
-    private StringRedisTemplate stringRedisTemplate;
+    public CacheService(StringRedisTemplate stringRedisTemplate) {
+        this.stringRedisTemplate = stringRedisTemplate;
+    }
 
     public String baseCache(String name) {
         if(StringUtils.isBlank(name)){
@@ -33,6 +37,10 @@ public class CacheService {
             stringRedisTemplate.opsForValue().set(CACHE_KEY + "cache_sign", value, 60, TimeUnit.SECONDS);
             return String.valueOf(BASE_CACHE_SIGN);
         }
+    }
+
+    public String incr(String name){
+        return String.valueOf(++BASE_CACHE_SIGN);
     }
 
 }
