@@ -100,25 +100,25 @@ public class RedisCacheConfig extends CachingConfigurerSupport {
         return new CacheErrorHandler() {
             @Override
             public void handleCacheGetError(RuntimeException exception, Cache cache, Object key) {
-                String format = String.format("RedisCache Get Exception:%s, cache name:%s, key:%s", exception.getMessage(), cache.getName(), key.toString());
+                String format = String.format("RedisCache Get Exception:%s, cache customKey:%s, key:%s", exception.getMessage(), cache.getName(), key.toString());
                 logger.error(format, exception);
             }
 
             @Override
             public void handleCachePutError(RuntimeException exception, Cache cache, Object key, Object value) {
-                String format = String.format("RedisCache Put Exception:%s, cache name:%s, key:%s, value:%s", exception.getMessage(), cache.getName(), key.toString(), JSON.toJSONString(value));
+                String format = String.format("RedisCache Put Exception:%s, cache customKey:%s, key:%s, value:%s", exception.getMessage(), cache.getName(), key.toString(), JSON.toJSONString(value));
                 logger.error(format, exception);
             }
 
             @Override
             public void handleCacheEvictError(RuntimeException exception, Cache cache, Object key) {
-                String format = String.format("RedisCache Evict Exception:%s, cache name:%s, key:%s", exception.getMessage(), cache.getName(), key.toString());
+                String format = String.format("RedisCache Evict Exception:%s, cache customKey:%s, key:%s", exception.getMessage(), cache.getName(), key.toString());
                 logger.error(format, exception);
             }
 
             @Override
             public void handleCacheClearError(RuntimeException exception, Cache cache) {
-                String format = String.format("RedisCache Clear Exception:%s, cache name:%s", exception.getMessage(), cache.getName());
+                String format = String.format("RedisCache Clear Exception:%s, cache customKey:%s", exception.getMessage(), cache.getName());
                 logger.error(format, exception);
             }
         };

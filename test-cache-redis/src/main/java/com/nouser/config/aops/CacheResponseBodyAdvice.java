@@ -1,4 +1,4 @@
-package com.nouser.config.advice;
+package com.nouser.config.aops;
 
 import com.nouser.config.annotations.UseCache;
 import com.nouser.utils.CacheUtils;
@@ -19,13 +19,13 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
-@RestControllerAdvice
-public class ApiResponseBody implements ResponseBodyAdvice<Object> {
-    private static final Logger logger = LoggerFactory.getLogger(ApiResponseBody.class);
+//@RestControllerAdvice
+public class CacheResponseBodyAdvice implements ResponseBodyAdvice<Object> {
+    private static final Logger logger = LoggerFactory.getLogger(CacheResponseBodyAdvice.class);
     private final StringRedisTemplate redisTemplate;
 
     @Autowired
-    public ApiResponseBody(StringRedisTemplate redisTemplate) {
+    public CacheResponseBodyAdvice(StringRedisTemplate redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 

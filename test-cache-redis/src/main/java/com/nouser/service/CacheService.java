@@ -1,5 +1,6 @@
 package com.nouser.service;
 
+import com.nouser.config.annotations.UseAopCache;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +42,11 @@ public class CacheService {
 
     public String incr(String name){
         return String.valueOf(++BASE_CACHE_SIGN);
+    }
+
+    @UseAopCache(customKey =  "#root.targetClass.getName() + ':' + #root.methodName + '#' + #name", timeOut = 10 * 1000)
+    public String decr(String name){
+        return String.valueOf(--BASE_CACHE_SIGN) + " - " + name;
     }
 
 }

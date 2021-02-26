@@ -16,20 +16,58 @@ public class JsonUtils {
     private static final Logger logger = LoggerFactory.getLogger(JsonUtils.class);
 
     private static Gson gson = null;
+
     static {
         gson = new Gson();
     }
 
     @NonNull
-    public static String toGJsonString(Object o){
-        if(o == null){
+    public static String toGJsonString(Object o) {
+        if (o == null) {
             return "";
         }
-        try{
+        try {
             return gson.toJson(o);
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error("Object To JsonString Exception:{}, Object:{}", e.getMessage(), String.valueOf(o), e);
             return "";
+        }
+    }
+
+    public static Object parseObject4G(String result) {
+        try {
+            return gson.fromJson(result, Object.class);
+        } catch (Exception e) {
+            logger.error("parseObject4G Exception:{}, Object:{}", e.getMessage(), result, e);
+            return null;
+        }
+    }
+
+    public static <T> T parseObject4G(String result, Class<T> clazz) {
+        try {
+            return gson.fromJson(result, clazz);
+        } catch (Exception e) {
+            logger.error("parseObject4G Exception:{}, Object:{}", e.getMessage(), result, e);
+            return null;
+        }
+    }
+
+    public static Object parseObject4A(String result){
+        try {
+            return JSON.parseObject(result);
+        }catch (Exception e){
+            logger.error("parseObject4A Exception:{}, Object:{}", e.getMessage(), result, e);
+
+            return null;
+        }
+    }
+
+    public static <T> T parseObject4A(String result, Class<T> clazz){
+        try {
+            return JSON.parseObject(result, clazz);
+        }catch (Exception e){
+            logger.error("parseObject4A Exception:{}, Object:{}", e.getMessage(), result, e);
+            return null;
         }
     }
 
@@ -59,6 +97,7 @@ public class JsonUtils {
     }
 
 
+    private JsonUtils() {
+    }
 
-    private JsonUtils(){}
 }
