@@ -1,11 +1,13 @@
 package com.nouser.controller;
 
 import com.nouser.config.annotations.UseCache;
+import com.nouser.enums.CacheTimes;
 import com.nouser.service.CacheAopService;
 import com.nouser.service.CacheService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,6 +24,12 @@ public class CacheController {
         this.cacheAopService = cacheAopService;
     }
 
+    @Cacheable(value = CacheTimes.D1,
+            key = "(#root.targetClass.getName() + ':' + #root.methodName + '#' + #name).replaceAll('[^0-9a-zA-Z:#._]', '')",
+            unless = "#result == null || #result == ''",
+            condition = "#name != null",
+            sync = false
+    )
     @RequestMapping("baseCache")
     public String baseCache(String name){
         logger.info("Into BaseCache Controller, {}", name);

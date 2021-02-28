@@ -52,7 +52,7 @@ public class CacheAdvice {
     public void cacheAnnotationPointcut() {
     }
 
-    @Around(value = "@annotation(useAopCache)")
+    @Around(value = "cachePointcut() && @annotation(useAopCache)")
     public Object aroundAdvice2(ProceedingJoinPoint joinPoint, UseAopCache useAopCache) throws Throwable {
         String keySpel = useAopCache.customKey();
         //获取Redis缓存Key

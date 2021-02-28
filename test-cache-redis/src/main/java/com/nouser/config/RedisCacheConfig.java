@@ -2,6 +2,7 @@ package com.nouser.config;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.support.spring.FastJsonRedisSerializer;
+import com.nouser.enums.CacheTimes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,9 @@ import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.interceptor.CacheErrorHandler;
+import org.springframework.cache.interceptor.CacheResolver;
 import org.springframework.cache.interceptor.KeyGenerator;
+import org.springframework.cache.interceptor.SimpleCacheResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -49,10 +52,11 @@ public class RedisCacheConfig extends CachingConfigurerSupport {
     /**
      * 有点问题#######################自定义过期时间不生效
      @Bean // important!
-     @Override public CacheResolver cacheResolver() {
-     // configure and return CacheResolver instance
-     return new SimpleCacheResolver(cacheManager(connectionFactory));
-     }
+     @Override
+    public CacheResolver cacheResolver() {
+        // configure and return CacheResolver instance
+        return new SimpleCacheResolver(cacheManager(connectionFactory));
+    }
      */
 
     /**
@@ -75,15 +79,7 @@ public class RedisCacheConfig extends CachingConfigurerSupport {
     @Bean
     @Override
     public KeyGenerator keyGenerator() {
-        return (o, method, params) -> {
-            StringBuilder sb = new StringBuilder();
-            sb.append(o.getClass().getName()).append("#"); // 包-类名称
-            sb.append(method.getName()); // 方法名
-//            for (Object param : params) {
-//                sb.append(param.toString()); // 参数名
-//            }
-            return sb.toString();
-        };
+        return (o, method, params) -> o.getClass().getName() + "#" + method.getName();
     }
 
     /**
@@ -97,31 +93,7 @@ public class RedisCacheConfig extends CachingConfigurerSupport {
     @Override
     public CacheErrorHandler errorHandler() {
         logger.error("handler redis cache Exception.");
-        return new CacheErrorHandler() {
-            @Override
-            public void handleCacheGetError(RuntimeException exception, Cache cache, Object key) {
-                String format = String.format("RedisCache Get Exception:%s, cache customKey:%s, key:%s", exception.getMessage(), cache.getName(), key.toString());
-                logger.error(format, exception);
-            }
-
-            @Override
-            public void handleCachePutError(RuntimeException exception, Cache cache, Object key, Object value) {
-                String format = String.format("RedisCache Put Exception:%s, cache customKey:%s, key:%s, value:%s", exception.getMessage(), cache.getName(), key.toString(), JSON.toJSONString(value));
-                logger.error(format, exception);
-            }
-
-            @Override
-            public void handleCacheEvictError(RuntimeException exception, Cache cache, Object key) {
-                String format = String.format("RedisCache Evict Exception:%s, cache customKey:%s, key:%s", exception.getMessage(), cache.getName(), key.toString());
-                logger.error(format, exception);
-            }
-
-            @Override
-            public void handleCacheClearError(RuntimeException exception, Cache cache) {
-                String format = String.format("RedisCache Clear Exception:%s, cache customKey:%s", exception.getMessage(), cache.getName());
-                logger.error(format, exception);
-            }
-        };
+        return new CustomLogErrorHandler();
     }
     /**
      * 自定义Redis缓存管理器
@@ -131,7 +103,7 @@ public class RedisCacheConfig extends CachingConfigurerSupport {
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
         RedisCacheConfiguration defaultCacheConf = RedisCacheConfiguration.defaultCacheConfig()
                 //设置缓存key的前缀生成方式
-                .computePrefixWith(cacheName -> cacheName + ":" + profilesActive + ":")
+                .computePrefixWith(cacheName -> profilesActive + "-" +  cacheName + ":" )
                 // 设置key的序列化方式
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(keySerializer()))
                 // 设置value的序列化方式
@@ -141,18 +113,16 @@ public class RedisCacheConfig extends CachingConfigurerSupport {
 //                .disableCachingNullValues()
 //                 默认60s缓存
                 .entryTtl(Duration.ofSeconds(60));
-        //设置缓存时间,使用@Cacheable(value = "user")注解的value值
+
+        //设置缓存时间,使用@Cacheable(value = "xxx")注解的value值
+        CacheTimes[] times = CacheTimes.values();
         Set<String> cacheNames = new HashSet<>();
-        cacheNames.add("user10");
-        cacheNames.add("user20");
-        cacheNames.add("user30");
-        cacheNames.add("user30");
         //设置缓存时间,使用@Cacheable(value = "user")注解的value值作为key, value是缓存配置，修改默认缓存时间
         ConcurrentHashMap<String, RedisCacheConfiguration> configMap = new ConcurrentHashMap<>();
-        configMap.put("user10", defaultCacheConf.entryTtl(Duration.ofSeconds(10)));
-        configMap.put("user20", defaultCacheConf.entryTtl(Duration.ofSeconds(20)));
-        configMap.put("user30", defaultCacheConf.entryTtl(Duration.ofSeconds(30)));
-        configMap.put("user30", defaultCacheConf.entryTtl(Duration.ofSeconds(30)));
+        for (CacheTimes time : times) {
+            cacheNames.add(time.getCacheName());
+            configMap.put(time.getCacheName(), defaultCacheConf.entryTtl(time.getCacheTime()));
+        }
 
         //需要先初始化缓存名称，再初始化其它的配置。
         RedisCacheManager redisCacheManager = RedisCacheManager.builder(connectionFactory)
@@ -181,7 +151,8 @@ public class RedisCacheConfig extends CachingConfigurerSupport {
      * ** 注意,要缓存的类型，必须有 "默认构造(无参构造)" ，否则从json2class时会报异常，提升没有默认构造。
      */
     private GenericJackson2JsonRedisSerializer valueSerializer() {
-        return new GenericJackson2JsonRedisSerializer();
+        GenericJackson2JsonRedisSerializer redisSerializer = new GenericJackson2JsonRedisSerializer();
+        return redisSerializer;
     }
 
     /**
@@ -193,5 +164,29 @@ public class RedisCacheConfig extends CachingConfigurerSupport {
         return fastJsonRedisSerializer;
     }
 
+
+
+    protected class CustomLogErrorHandler implements CacheErrorHandler{
+        @Override
+        public void handleCacheGetError(RuntimeException exception, Cache cache, Object key) {
+            String format = String.format("RedisCache Get Exception:%s, cache customKey:%s, key:%s", exception.getMessage(), cache.getName(), key.toString());
+            logger.error(format, exception);
+        }
+        @Override
+        public void handleCachePutError(RuntimeException exception, Cache cache, Object key, Object value) {
+            String format = String.format("RedisCache Put Exception:%s, cache customKey:%s, key:%s, value:%s", exception.getMessage(), cache.getName(), key.toString(), JSON.toJSONString(value));
+            logger.error(format, exception);
+        }
+        @Override
+        public void handleCacheEvictError(RuntimeException exception, Cache cache, Object key) {
+            String format = String.format("RedisCache Evict Exception:%s, cache customKey:%s, key:%s", exception.getMessage(), cache.getName(), key.toString());
+            logger.error(format, exception);
+        }
+        @Override
+        public void handleCacheClearError(RuntimeException exception, Cache cache) {
+            String format = String.format("RedisCache Clear Exception:%s, cache customKey:%s", exception.getMessage(), cache.getName());
+            logger.error(format, exception);
+        }
+    }
 
 }

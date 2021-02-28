@@ -17,16 +17,17 @@
 SpringBoot连接Redis配置(本来懒得写的, 但是我还是追求完美一点):
 
 ```xml
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-pool2</artifactId>
-            <version>2.4.2</version>
-        </dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-redis</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-pool2</artifactId>
+    <version>2.4.2</version>
+</dependency>
 ```
+RedisClient我使用的是SpringBoot自带的lettuce框架，而并非jredis。
 
 ```properties
 spring.redis.database=0
@@ -55,6 +56,7 @@ spring.redis.lettuce.shutdown-timeout=100ms
             return null;
         }
         logger.info("Into BaseCache Service, {}", name);
+        //手动加入缓存逻辑
         String value = stringRedisTemplate.opsForValue().get("cache_sign:" + name);
         if(!StringUtils.isBlank(value)){
             return value;
@@ -71,7 +73,9 @@ spring.redis.lettuce.shutdown-timeout=100ms
 
 个别接口或方法我们可以手撸代码，但是不管是后期维护还是代码的通用性都是比较局限的。所以与其在业务逻辑中增加判断逻辑，不如写一个通用的。
 
-### 3.1 先定义一个注解吧,我们通过这个注解来区别方法是否需要缓存
+### 3.1 先定义一个注解
+
+   我们通过这个注解来区别方法是否需要缓存，注解放到方法上，此方法的返回结果将会被缓存。
 
 ```java
 @Retention(RetentionPolicy.RUNTIME)
@@ -86,8 +90,6 @@ public @interface UseCache {
 #### 3.2.1 拦截器: HandleInterceptorAdapter
 
 拦截器的作用我在这里就不过多的说明。如果在拦截器中发现此接口包含UseCache注解，我们需要检查Redis是否存在缓存，如果存在缓存，则直接返回其值即可。
-
-    RedisClient我使用的是SpringBoot自带的lettuce框架，而并非jredis。
 
 代码如下：
 
