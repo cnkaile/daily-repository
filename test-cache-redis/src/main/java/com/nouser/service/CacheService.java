@@ -1,14 +1,24 @@
 package com.nouser.service;
 
 import com.nouser.config.annotations.UseAopCache;
+import com.nouser.enums.CacheTimes;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 public class CacheService {
@@ -49,4 +59,22 @@ public class CacheService {
         return String.valueOf(--BASE_CACHE_SIGN) + " - " + name;
     }
 
+    @Cacheable(value = CacheTimes.D1, key = "#root.methodName", unless = "#result == null || #result.size() < 1", condition = "#skip != null")
+    public List<String> getList(String skip) {
+        return Arrays.stream(UUID.randomUUID().toString().split("-")).collect(Collectors.toList());
+    }
+
+
+    @CachePut(value = CacheTimes.D1, key = "#root.targetClass.getMethod('getList', #root.targetClass).name", unless = "#result == null || #result.size() < 1", condition = "#condition" )
+    public List<String> setListCache(List<String> list, boolean condition){
+        if(list != null || list.size() > 0){
+            return list;
+        }
+        return Arrays.stream(UUID.randomUUID().toString().split("-")).collect(Collectors.toList());
+    }
+
+
+    public String myKeyGenerator(){
+        return "myKey01";
+    }
 }

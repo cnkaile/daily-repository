@@ -24,6 +24,14 @@ public class CacheController {
         this.cacheAopService = cacheAopService;
     }
 
+    @RequestMapping("/cacheAnnotation")
+    public String cacheAnnotation(String name, String update){
+
+//        String result = cacheService.cacheAnnotationUse(name, update);
+
+        return "OK - ";
+    }
+
     @Cacheable(value = CacheTimes.D1,
             key = "(#root.targetClass.getName() + ':' + #root.methodName + '#' + #name).replaceAll('[^0-9a-zA-Z:#._]', '')",
             unless = "#result == null || #result == ''",
